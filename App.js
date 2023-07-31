@@ -108,6 +108,8 @@ const handleAppStateChange = async (nextAppState) => {
 export default function App() {
   const [itemList, setItemList] = useState([]);
 
+  const [log, setLog] = useState("");
+
   useEffect(() => {
     async function readData() {
       const jsonValue = await AsyncStorage.getItem("rsslist");
@@ -162,19 +164,21 @@ export default function App() {
     let lastData = [];
     if (jsonValue != null) {
       lastData = JSON.parse(jsonValue);
+      console.log("read2 ->", lastData);
+      lastData.list.forEach((value) => {
+        readList.add(value);
+      });
     }
-    // console.log("read2 ->", lastData);
-    lastData.list.forEach((value) => {
-      readList.add(value);
-    });
     // console.log("readList.length ->", readList);
     if (readList.size > 0) {
       await saveReadList({ list: Array.from(readList) });
     }
+    setLog("已读数据已处理");
 
     const tempList = [];
     for (let i = 0; i < rssLinks.length; i++) {
       console.log(`[link --> ${rssLinks[i]}]`);
+      setLog(`[link[${i + 1}/${rssLinks.length}] --> ${rssLinks[i]}]`);
       let result = await requestRSSData(rssLinks[i]);
       // console.log(result.items[0]);
       let list = processRSSData(result);
@@ -186,6 +190,7 @@ export default function App() {
       });
       console.log("forEach-->", tempList.length);
     }
+    setLog(`加载结束`);
     saveData(tempList);
     setItemList(tempList);
   }
@@ -198,6 +203,7 @@ export default function App() {
           requestAll();
         }}
       />
+      <Text>{log}</Text>
       <View style={styles.itemList}>
         <FlashList
           ref={(ref) => (this.listView = ref)}
