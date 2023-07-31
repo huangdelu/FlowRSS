@@ -1,8 +1,16 @@
-import { StyleSheet, Text, View, Pressable } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Pressable,
+  useWindowDimensions,
+} from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import moment from "moment";
+import RenderHtml from "react-native-render-html";
 
 export default function RSSItem({ item }) {
+  const { width } = useWindowDimensions();
   return (
     <Pressable
       onPress={async () => {
@@ -21,6 +29,9 @@ export default function RSSItem({ item }) {
           <Text style={styles.time}>· {moment(item.published).fromNow()}</Text>
         </View>
         <Text style={styles.itemTitle}>{item.title}</Text>
+        <View style={{ width: "100%", height: 300 }}>
+          <RenderHtml source={{ html: item.content }} contentWidth={width} />
+        </View>
         <View style={item.splitLine} />
       </View>
     </Pressable>
