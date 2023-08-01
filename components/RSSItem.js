@@ -29,7 +29,7 @@ export default function RSSItem({ item }) {
           <Text style={styles.time}>· {moment(item.published).fromNow()}</Text>
         </View>
         <Text style={styles.itemTitle}>{item.title}</Text>
-        <View style={{ width: "100%", height: 300 }}>
+        <View style={{ width: "100%", maxHeight: 300 ,backgroundColor:'gray'}}>
           <RenderHtml source={{ html: item.content }} contentWidth={width} />
         </View>
         <View style={item.splitLine} />
