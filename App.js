@@ -13,6 +13,7 @@ import * as rssParser from "react-native-rss-parser";
 import { FlashList } from "@shopify/flash-list";
 import RSSItem from "./components/RSSItem";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+const cheerio = require('cheerio');
 
 /**
  * 当前列表滚动的距离
@@ -23,14 +24,14 @@ let curOffsetY = 0;
  * RSS链接集合
  */
 const rssLinks = [
-  "https://chentiansaber.top/sspai/index", //少数派
-  "http://www.ruanyifeng.com/blog/atom.xml", // 阮一峰
-  // "https://chentiansaber.top/bilibili/weekly?limit=20", // BiliBili - 每周热门
-  "https://chentiansaber.top/v2ex/topics/hot", //V2EX - 最热
+  // "https://chentiansaber.top/sspai/index", //少数派
+  // "http://www.ruanyifeng.com/blog/atom.xml", // 阮一峰
+  "https://chentiansaber.top/bilibili/weekly?limit=20", // BiliBili - 每周热门
+  // "https://chentiansaber.top/v2ex/topics/hot", //V2EX - 最热
   // "https://chentiansaber.top/v2ex/tab/creative", //V2EX - 创造
   // "https://chentiansaber.top/v2ex/tab/play", //V2EX - 好玩
   // "https://chentiansaber.top/v2ex/tab/tech", //V2EX - 技术
-  "https://chentiansaber.top/hackernews/best", // HackNews
+  // "https://hnrss.org/bestcomments", // HackNews
   // "https://chentiansaber.top/wechat/ce/5b6871ddaf33fe067f22dbd3", // 差评公众号
   // "https://chentiansaber.top/gamersky/news?limit=20", // 游民星空
   // 即刻
@@ -57,8 +58,30 @@ function processRSSData(rss) {
   for (let i = 0; i < rss.items.length; i++) {
     let rssItem = rss.items[i];
 
+    // 找出所有图片
+    let imageList = []
+    let content = (rssItem.content && rssItem.content.length > rssItem.description.length) ? rssItem.content : rssItem.description
+    const $ = cheerio.load(content);
+    const imgTags = $('img');
+
+    imgTags.each((index, element) => {
+      imageList.push($(element).attr('src'))
+    });
+    // console.log('imageList --> ', imageList);
+
+    // 删除无用的标签
+    $('img').remove();
+    $('figure').remove();
+    $('hr').remove();
+    $('h1').remove();
+    $('h2').remove();
+    $('h3').remove();
+    $('h4').remove();
+    $('h5').remove();
+    $('h6').remove();
+    $('iframe').remove();
     // 截取description前500个
-    let description = rssItem.description.length <= 500 ? rssItem.description : rssItem.description.substr(0, 500)
+    let description = $.html().length <= 500 ? $.html() : `${$.html().substr(0, 500)}...`
 
     tempList.push({
       channel: {
@@ -68,7 +91,9 @@ function processRSSData(rss) {
       title: rssItem.title,
       link: rssItem.links[0].url,
       author: rssItem.authors.length > 0 ? rssItem.authors[0].name : "blank",
-      content: description,
+      description: description,
+      content: content,
+      imageList: imageList,
       published: rssItem.published,
     });
   }
@@ -184,7 +209,7 @@ export default function App() {
       console.log(`[link --> ${rssLinks[i]}]`);
       setLog(`[link[${i + 1}/${rssLinks.length}] --> ${rssLinks[i]}]`);
       let result = await requestRSSData(rssLinks[i]);
-      // console.log(result.items[0]);
+      console.log(result.items[0]);
       let list = processRSSData(result);
       console.log("processRSSData-->", list.length);
       list.forEach((value) => {
