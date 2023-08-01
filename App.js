@@ -252,9 +252,10 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f2f4f7",
+    backgroundColor: "white",
   },
   itemList: {
     flex: 1,
+    backgroundColor: '#f2f4f7'
   },
 });
