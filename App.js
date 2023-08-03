@@ -24,16 +24,16 @@ let curOffsetY = 0;
  * RSS链接集合
  */
 const rssLinks = [
-  // "https://chentiansaber.top/sspai/index", //少数派
-  // "http://www.ruanyifeng.com/blog/atom.xml", // 阮一峰
+  "https://chentiansaber.top/sspai/index", //少数派
+  "http://www.ruanyifeng.com/blog/atom.xml", // 阮一峰
   "https://chentiansaber.top/bilibili/weekly?limit=20", // BiliBili - 每周热门
-  // "https://chentiansaber.top/v2ex/topics/hot", //V2EX - 最热
-  // "https://chentiansaber.top/v2ex/tab/creative", //V2EX - 创造
-  // "https://chentiansaber.top/v2ex/tab/play", //V2EX - 好玩
-  // "https://chentiansaber.top/v2ex/tab/tech", //V2EX - 技术
-  // "https://hnrss.org/bestcomments", // HackNews
-  // "https://chentiansaber.top/wechat/ce/5b6871ddaf33fe067f22dbd3", // 差评公众号
-  // "https://chentiansaber.top/gamersky/news?limit=20", // 游民星空
+  "https://chentiansaber.top/v2ex/topics/hot", //V2EX - 最热
+  "https://chentiansaber.top/v2ex/tab/creative", //V2EX - 创造
+  "https://chentiansaber.top/v2ex/tab/play", //V2EX - 好玩
+  "https://chentiansaber.top/v2ex/tab/tech", //V2EX - 技术
+  "https://hnrss.org/bestcomments", // HackNews
+  "https://chentiansaber.top/wechat/ce/5b6871ddaf33fe067f22dbd3", // 差评公众号
+  "https://chentiansaber.top/gamersky/news?limit=20", // 游民星空
   // 即刻
   // Twitter，Instergram，youtube，微博
 ];
@@ -182,22 +182,22 @@ export default function App() {
     await AsyncStorage.setItem("listOffSetY", `${0}`);
     // // 每次请求新数据前，先把旧数据保存起来，用来判断已读
     const readList = new Set();
-    // const tempItemList = [];
-    // tempItemList.push(...itemList);
-    // tempItemList.forEach((value) => {
-    //   readList.add(value.title);
-    // });
-    // console.log("read1 ->", readList.size);
-    // let jsonValue = await AsyncStorage.getItem("hasReadList");
-    // // console.log("hasReadList ->", jsonValue);
-    // let lastData = [];
-    // if (jsonValue != null) {
-    //   lastData = JSON.parse(jsonValue);
-    //   console.log("read2 ->", lastData);
-    //   lastData.list.forEach((value) => {
-    //     readList.add(value);
-    //   });
-    // }
+    const tempItemList = [];
+    tempItemList.push(...itemList);
+    tempItemList.forEach((value) => {
+      readList.add(value.title);
+    });
+    console.log("read1 ->", readList.size);
+    let jsonValue = await AsyncStorage.getItem("hasReadList");
+    // console.log("hasReadList ->", jsonValue);
+    let lastData = [];
+    if (jsonValue != null) {
+      lastData = JSON.parse(jsonValue);
+      console.log("read2 ->", lastData);
+      lastData.list.forEach((value) => {
+        readList.add(value);
+      });
+    }
     // console.log("readList.length ->", readList);
     if (readList.size > 0) {
       await saveReadList({ list: Array.from(readList) });
