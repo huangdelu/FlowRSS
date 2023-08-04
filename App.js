@@ -87,6 +87,7 @@ async function processRSSData(rss) {
     let avatarData = await fetch(`https://source.unsplash.com/random/200x200`)
 
     tempList.push({
+      id: 0,
       channel: {
         title: rss.title,
         link: rss.links[0].url,
@@ -101,6 +102,12 @@ async function processRSSData(rss) {
       published: rssItem.published,
     });
   }
+
+  // 打乱数据
+  tempList.sort(() => Math.random() - 0.5);
+
+  tempList.push({ id: 1 })
+
   return tempList;
 }
 

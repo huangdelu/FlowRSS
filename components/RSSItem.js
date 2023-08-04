@@ -40,7 +40,7 @@ export default function RSSItem({ item }) {
   }
 
   useEffect(() => {
-    
+
   }, [])
 
   return (
@@ -53,28 +53,36 @@ export default function RSSItem({ item }) {
         }
       }}
     >
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Image source={{ uri: item.avatarUrl }} style={styles.avatar} />
-          <View>
-            <Text style={styles.author}>{item.author}</Text>
-            <View style={{ flexDirection: 'row', marginTop: 2 }}>
-              <Text style={styles.channelTitle}>@{item.channel.title}</Text>
-              <Text style={styles.time}>· {moment(item.published).fromNow()}</Text>
+      {item.id == 0 ?
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <Image source={{ uri: item.avatarUrl }} style={styles.avatar} />
+            <View>
+              <Text style={styles.author}>{item.author}</Text>
+              <View style={{ flexDirection: 'row', marginTop: 2 }}>
+                <Text style={styles.channelTitle}>@{item.channel.title}</Text>
+                <Text style={styles.time}>· {moment(item.published).fromNow()}</Text>
+              </View>
             </View>
           </View>
-        </View>
-        {item.title && item.title.length > 0 ? <Text style={styles.itemTitle}>{item.title}</Text> : null}
-        <View style={{ width: "100%", marginTop: 2 }}>
-          <RenderHtml source={{ html: item.description }} contentWidth={width} baseStyle={baseStyle} tagsStyles={tagStyles} enableExperimentalGhostLinesPrevention={true} />
-        </View>
-        {item.imageList.length > 0 ? <Image
-          style={{ width: 300, height: 300 / 5 * 3, borderRadius: 4 }}
-          source={{
-            uri: item.imageList[0],
-          }}
-        /> : null}
-      </View>
+          {item.title && item.title.length > 0 ? <Text style={styles.itemTitle}>{item.title}</Text> : null}
+          <View style={{ width: "100%", marginTop: 2 }}>
+            <RenderHtml source={{ html: item.description }} contentWidth={width} baseStyle={baseStyle} tagsStyles={tagStyles} enableExperimentalGhostLinesPrevention={true} />
+          </View>
+          {item.imageList.length > 0 ? <Image
+            style={{ width: 300, height: 300 / 5 * 3, borderRadius: 4 }}
+            source={{
+              uri: item.imageList[0],
+            }}
+          /> : null}
+        </View> :
+        <Pressable onPress={()=>{
+          alert('刷新')
+        }}>
+          <View style={{ width: '100%', height: 50 }}>
+            <Text>{"换一批"}</Text>
+          </View>
+        </Pressable>}
     </Pressable>
   );
 }
