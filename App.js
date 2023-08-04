@@ -25,15 +25,15 @@ let curOffsetY = 0;
  */
 const rssLinks = [
   "https://chentiansaber.top/sspai/index", //少数派
-  "http://www.ruanyifeng.com/blog/atom.xml", // 阮一峰
-  "https://chentiansaber.top/bilibili/weekly?limit=20", // BiliBili - 每周热门
-  "https://chentiansaber.top/v2ex/topics/hot", //V2EX - 最热
-  "https://chentiansaber.top/v2ex/tab/creative", //V2EX - 创造
-  "https://chentiansaber.top/v2ex/tab/play", //V2EX - 好玩
-  "https://chentiansaber.top/v2ex/tab/tech", //V2EX - 技术
-  "https://hnrss.org/bestcomments", // HackNews
-  "https://chentiansaber.top/wechat/ce/5b6871ddaf33fe067f22dbd3", // 差评公众号
-  "https://chentiansaber.top/gamersky/news?limit=20", // 游民星空
+  // "http://www.ruanyifeng.com/blog/atom.xml", // 阮一峰
+  // "https://chentiansaber.top/bilibili/weekly?limit=20", // BiliBili - 每周热门
+  // "https://chentiansaber.top/v2ex/topics/hot", //V2EX - 最热
+  // "https://chentiansaber.top/v2ex/tab/creative", //V2EX - 创造
+  // "https://chentiansaber.top/v2ex/tab/play", //V2EX - 好玩
+  // "https://chentiansaber.top/v2ex/tab/tech", //V2EX - 技术
+  // "https://hnrss.org/bestcomments", // HackNews
+  // "https://chentiansaber.top/wechat/ce/5b6871ddaf33fe067f22dbd3", // 差评公众号
+  // "https://chentiansaber.top/gamersky/news?limit=20", // 游民星空
   // 即刻
   // Twitter，Instergram，youtube，微博
 ];
@@ -53,7 +53,7 @@ async function requestRSSData(rssLink) {
 /**
  * 处理RSS原始数据
  */
-function processRSSData(rss) {
+async function processRSSData(rss) {
   let tempList = [];
   for (let i = 0; i < rss.items.length; i++) {
     let rssItem = rss.items[i];
@@ -83,6 +83,9 @@ function processRSSData(rss) {
     // 截取description前500个
     let description = $.html().length <= 500 ? $.html() : `${$.html().substr(0, 500)}...`
 
+    // 请求头像
+    let avatarData = await fetch(`https://source.unsplash.com/random/200x200`)
+
     tempList.push({
       channel: {
         title: rss.title,
@@ -91,6 +94,7 @@ function processRSSData(rss) {
       title: rssItem.title,
       link: rssItem.links[0].url,
       author: rssItem.authors.length > 0 ? rssItem.authors[0].name : "blank",
+      avatarUrl: avatarData.url,
       description: description,
       content: content,
       imageList: imageList,
@@ -178,31 +182,31 @@ export default function App() {
   }, [itemList]);
 
   async function requestAll() {
-    // 滑动位置复位
-    await AsyncStorage.setItem("listOffSetY", `${0}`);
-    // // 每次请求新数据前，先把旧数据保存起来，用来判断已读
+    // // 滑动位置复位
+    // await AsyncStorage.setItem("listOffSetY", `${0}`);
+    // // // 每次请求新数据前，先把旧数据保存起来，用来判断已读
     const readList = new Set();
-    const tempItemList = [];
-    tempItemList.push(...itemList);
-    tempItemList.forEach((value) => {
-      readList.add(value.title);
-    });
-    console.log("read1 ->", readList.size);
-    let jsonValue = await AsyncStorage.getItem("hasReadList");
-    // console.log("hasReadList ->", jsonValue);
-    let lastData = [];
-    if (jsonValue != null) {
-      lastData = JSON.parse(jsonValue);
-      console.log("read2 ->", lastData);
-      lastData.list.forEach((value) => {
-        readList.add(value);
-      });
-    }
-    // console.log("readList.length ->", readList);
-    if (readList.size > 0) {
-      await saveReadList({ list: Array.from(readList) });
-    }
-    setLog("已读数据已处理");
+    // const tempItemList = [];
+    // tempItemList.push(...itemList);
+    // tempItemList.forEach((value) => {
+    //   readList.add(value.title);
+    // });
+    // console.log("read1 ->", readList.size);
+    // let jsonValue = await AsyncStorage.getItem("hasReadList");
+    // // console.log("hasReadList ->", jsonValue);
+    // let lastData = [];
+    // if (jsonValue != null) {
+    //   lastData = JSON.parse(jsonValue);
+    //   console.log("read2 ->", lastData);
+    //   lastData.list.forEach((value) => {
+    //     readList.add(value);
+    //   });
+    // }
+    // // console.log("readList.length ->", readList);
+    // if (readList.size > 0) {
+    //   await saveReadList({ list: Array.from(readList) });
+    // }
+    // setLog("已读数据已处理");
 
     const tempList = [];
     for (let i = 0; i < rssLinks.length; i++) {
@@ -210,7 +214,7 @@ export default function App() {
       setLog(`[link[${i + 1}/${rssLinks.length}] --> ${rssLinks[i]}]`);
       let result = await requestRSSData(rssLinks[i]);
       console.log(result.items[0]);
-      let list = processRSSData(result);
+      let list = await processRSSData(result);
       console.log("processRSSData-->", list.length);
       list.forEach((value) => {
         if (readList.has(value.title) == false) {

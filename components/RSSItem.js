@@ -39,15 +39,8 @@ export default function RSSItem({ item }) {
     whiteSpace: 'normal'
   }
 
-  const [avatarUrl, setAvatarUrl] = useState('')
-
   useEffect(() => {
-    function generateImage() {
-      fetch(`https://source.unsplash.com/random/400x400`).then((response) => {
-        setAvatarUrl(response.url);
-      })
-    }
-    generateImage()
+    
   }, [])
 
   return (
@@ -62,7 +55,7 @@ export default function RSSItem({ item }) {
     >
       <View style={styles.container}>
         <View style={styles.header}>
-          <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+          <Image source={{ uri: item.avatarUrl }} style={styles.avatar} />
           <View>
             <Text style={styles.author}>{item.author}</Text>
             <View style={{ flexDirection: 'row', marginTop: 2 }}>
