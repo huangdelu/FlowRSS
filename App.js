@@ -7,7 +7,7 @@ import {
   SafeAreaView,
   Pressable,
   Button,
-  AppState,
+  AppState, Image
 } from "react-native";
 import * as rssParser from "react-native-rss-parser";
 import { FlashList } from "@shopify/flash-list";
@@ -86,6 +86,16 @@ async function processRSSData(rss) {
     // 请求头像
     let avatarData = await fetch(`https://source.unsplash.com/random/200x200`)
 
+    // 请求首张图的宽高
+    let imageSize = { width: 0, height: 0 }
+    if (imageList.length > 3) {
+      imageSize = await new Promise((resolve, reject) => {
+        Image.getSize(imageList[imageList.length - 3], (width, height) => {
+          resolve({ width, height });
+        }, reject);
+      });
+    }
+
     tempList.push({
       id: 0,
       channel: {
@@ -99,6 +109,8 @@ async function processRSSData(rss) {
       description: description,
       content: content,
       imageList: imageList,
+      imageWidth: imageSize.width,
+      imageHeight: imageSize.height,
       published: rssItem.published,
     });
   }

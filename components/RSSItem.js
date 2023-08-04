@@ -69,14 +69,14 @@ export default function RSSItem({ item }) {
           <View style={{ width: "100%", marginTop: 2 }}>
             <RenderHtml source={{ html: item.description }} contentWidth={width} baseStyle={baseStyle} tagsStyles={tagStyles} enableExperimentalGhostLinesPrevention={true} />
           </View>
-          {item.imageList.length > 0 ? <Image
-            style={{ width: 300, height: 300 / 5 * 3, borderRadius: 4 }}
+          {item.imageList.length > 3 ? <Image
+            style={{ width: (item.imageWidth > item.imageHeight ? 200 : 200 * item.imageWidth / item.imageHeight), height: (item.imageWidth > item.imageHeight ? 200 * item.imageHeight / item.imageWidth : 200), borderRadius: 4 }}
             source={{
-              uri: item.imageList[0],
+              uri: item.imageList[item.imageList.length - 3],
             }}
           /> : null}
         </View> :
-        <Pressable onPress={()=>{
+        <Pressable onPress={() => {
           alert('刷新')
         }}>
           <View style={{ width: '100%', height: 50 }}>
