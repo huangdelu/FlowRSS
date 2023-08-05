@@ -89,7 +89,7 @@ async function processRSSData(rss) {
     let description = pContents;
 
     // 请求头像
-    let avatarData = await fetch(`https://source.unsplash.com/random/200x200`)
+    let avatarData = await fetch(`https://source.unsplash.com/random/200x200?city`)
 
     // 请求首张图的宽高
     let imageSize = { width: 0, height: 0 }
@@ -257,6 +257,10 @@ export default function App() {
     setItemList(tempList);
   }
 
+  const handleItemClick = () => {
+    requestAll()
+  };
+
   return (
     <View style={styles.container}>
       <Pressable style={{
@@ -277,7 +281,7 @@ export default function App() {
         <FlashList
           ref={(ref) => (this.listView = ref)}
           data={itemList}
-          renderItem={({ item }) => <RSSItem item={item} />}
+          renderItem={({ item }) => <RSSItem item={item} onClick={handleItemClick} />}
           estimatedItemSize={200}
           onScroll={(event) => {
             curOffsetY = event.nativeEvent.contentOffset.y;
