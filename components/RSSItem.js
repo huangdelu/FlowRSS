@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 
 export default function RSSItem({ item }) {
   const { width } = useWindowDimensions();
+  const maxImageSize = 240
 
   const tagStyles = {
     strong: {
@@ -36,7 +37,7 @@ export default function RSSItem({ item }) {
     fontSize: 16,
     color: '#1f1f1f',
     lineHeight: 23,
-    whiteSpace: 'normal'
+    whiteSpace: 'normal',
   }
 
   useEffect(() => {
@@ -59,7 +60,7 @@ export default function RSSItem({ item }) {
             <Image source={{ uri: item.avatarUrl }} style={styles.avatar} />
             <View>
               <Text style={styles.author}>{item.author}</Text>
-              <View style={{ flexDirection: 'row', marginTop: 2 }}>
+              <View style={{ flexDirection: 'row', marginTop: 3 }}>
                 <Text style={styles.channelTitle}>@{item.channel.title}</Text>
                 <Text style={styles.time}>· {moment(item.published).fromNow()}</Text>
               </View>
@@ -67,10 +68,23 @@ export default function RSSItem({ item }) {
           </View>
           {item.title && item.title.length > 0 ? <Text style={styles.itemTitle}>{item.title}</Text> : null}
           <View style={{ width: "100%", marginTop: 2 }}>
-            <RenderHtml source={{ html: item.description }} contentWidth={width} baseStyle={baseStyle} tagsStyles={tagStyles} enableExperimentalGhostLinesPrevention={true} />
+            <RenderHtml
+              source={{ html: item.description }}
+              contentWidth={width}
+              baseStyle={baseStyle}
+              tagsStyles={tagStyles}
+              enableExperimentalGhostLinesPrevention={true}
+            />
           </View>
           {item.imageList.length > 3 ? <Image
-            style={{ width: (item.imageWidth > item.imageHeight ? 200 : 200 * item.imageWidth / item.imageHeight), height: (item.imageWidth > item.imageHeight ? 200 * item.imageHeight / item.imageWidth : 200), borderRadius: 4 }}
+            style={{
+              width: (item.imageWidth > item.imageHeight ? maxImageSize : maxImageSize * item.imageWidth / item.imageHeight),
+              height: (item.imageWidth > item.imageHeight ? maxImageSize * item.imageHeight / item.imageWidth : maxImageSize),
+              borderRadius: 4,
+              borderWidth: 2,
+              borderColor: '#f5f5f5',
+              marginTop: 16
+            }}
             source={{
               uri: item.imageList[item.imageList.length - 3],
             }}
@@ -92,7 +106,8 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: "white",
-    marginBottom: 10
+    marginBottom: 4,
+    paddingBottom: 24
   },
   header: {
     width: "100%",
@@ -103,28 +118,31 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 30,
-    borderWidth: 1,
-    borderColor: '#101828',
+    borderWidth: 2,
+    borderColor: '#f5f5f5',
     backgroundColor: "white",
   },
   author: {
-    fontSize: 15,
-    color: "#1f1f1f",
+    fontSize: 14,
+    color: "#3E3E3E",
     marginLeft: 8,
     fontWeight: 'bold'
   },
   channelTitle: {
+    fontSize: 12,
     marginLeft: 6,
-    color: "#101828",
+    color: "#1D1D1D",
   },
   time: {
+    fontSize: 12,
     marginLeft: 6,
-    color: "#101828",
+    color: "#1D1D1D",
   },
   itemTitle: {
-    marginTop: 16,
+    marginTop: 12,
     fontWeight: "500",
     fontSize: 17,
-    lineHeight: 22,
+    lineHeight: 26,
+    color: '#0B0B0B',
   },
 });

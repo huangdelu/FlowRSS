@@ -13,6 +13,7 @@ import * as rssParser from "react-native-rss-parser";
 import { FlashList } from "@shopify/flash-list";
 import RSSItem from "./components/RSSItem";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFonts } from 'expo-font';
 const cheerio = require('cheerio');
 
 /**
@@ -162,6 +163,10 @@ export default function App() {
 
   const [log, setLog] = useState("");
 
+  const [fontsLoaded] = useFonts({
+    'Billabong': require('./assets/fonts/Billabong.ttf'),
+  });
+
   useEffect(() => {
     async function readData() {
       const jsonValue = await AsyncStorage.getItem("rsslist");
@@ -248,14 +253,18 @@ export default function App() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Button
-        title="Refresh"
-        onPress={() => {
-          requestAll();
-        }}
-      />
-      <Text>{log}</Text>
+    <View style={styles.container}>
+      <View style={{
+        height: 50,
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingLeft: 16,
+        paddingRight: 16
+      }}>
+        <Text style={{ fontFamily: 'Billabong', fontSize: 28 }}>{"Rssgrame"}</Text>
+      </View>
+      <View style={{ height: 1.5, width: '100%', backgroundColor: '#f5f5f5' }} />
       <View style={styles.itemList}>
         <FlashList
           ref={(ref) => (this.listView = ref)}
@@ -268,7 +277,7 @@ export default function App() {
         />
       </View>
       <StatusBar style="auto" />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -276,6 +285,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "white",
+    paddingTop: 52,
   },
   itemList: {
     flex: 1,
