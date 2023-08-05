@@ -33,7 +33,7 @@ const rssLinks = [
   // "https://chentiansaber.top/v2ex/tab/play", //V2EX - 好玩
   // "https://chentiansaber.top/v2ex/tab/tech", //V2EX - 技术
   // "https://hnrss.org/bestcomments", // HackNews
-  // "https://chentiansaber.top/wechat/ce/5b6871ddaf33fe067f22dbd3", // 差评公众号
+  "https://chentiansaber.top/wechat/ce/5b6871ddaf33fe067f22dbd3", // 差评公众号
   // "https://chentiansaber.top/gamersky/news?limit=20", // 游民星空
   // 即刻
   // Twitter，Instergram，youtube，微博
@@ -74,15 +74,19 @@ async function processRSSData(rss) {
     $('img').remove();
     $('figure').remove();
     $('hr').remove();
-    $('h1').remove();
-    $('h2').remove();
-    $('h3').remove();
-    $('h4').remove();
-    $('h5').remove();
-    $('h6').remove();
     $('iframe').remove();
+
+    // // 提取<p>标签的文本并保留标签
+    // const pText = $('p').html();
+    // 提取前三个<p>标签的内容
+    let pContents = ``;
+    $('p').slice(3, 7).each((index, element) => {
+      pContents = pContents + ($(element).html()) + (index == 3 ? '' : `<br>`);
+    });
+
     // 截取description前500个
-    let description = $.html().length <= 500 ? $.html() : `${$.html().substr(0, 500)}...`
+    // let description = pText.length <= 500 ? pText : `${pText.substr(0, 500)}...`
+    let description = pContents;
 
     // 请求头像
     let avatarData = await fetch(`https://source.unsplash.com/random/200x200`)
@@ -115,11 +119,6 @@ async function processRSSData(rss) {
       published: rssItem.published,
     });
   }
-
-  // 打乱数据
-  tempList.sort(() => Math.random() - 0.5);
-
-  tempList.push({ id: 1 })
 
   return tempList;
 }
@@ -248,23 +247,32 @@ export default function App() {
       console.log("forEach-->", tempList.length);
     }
     setLog(`加载结束`);
+
+    // 打乱数据
+    tempList.sort(() => Math.random() - 0.5);
+
+    tempList.push({ id: 1 })
+
     saveData(tempList);
     setItemList(tempList);
   }
 
   return (
     <View style={styles.container}>
-      <View style={{
+      <Pressable style={{
         height: 50,
         width: '100%',
         justifyContent: 'center',
         alignItems: 'center',
         paddingLeft: 16,
         paddingRight: 16
+      }} onPress={() => {
+        requestAll()
       }}>
-        <Text style={{ fontFamily: 'Billabong', fontSize: 28 }}>{"Rssgrame"}</Text>
-      </View>
+        <Text style={{ fontFamily: 'Billabong', fontSize: 30 }}>{"Rssgrame"}</Text>
+      </Pressable>
       <View style={{ height: 1.5, width: '100%', backgroundColor: '#f5f5f5' }} />
+      <Text style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>{log}</Text>
       <View style={styles.itemList}>
         <FlashList
           ref={(ref) => (this.listView = ref)}

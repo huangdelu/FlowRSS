@@ -17,14 +17,17 @@ export default function RSSItem({ item }) {
 
   const tagStyles = {
     strong: {
+      color: '#0B0B0B',
       fontWeight: '500'
     },
     p: {
+      color: '#0B0B0B',
       marginTop: 10,
       marginBottom: 0
     },
     a: {
-      color: '#1f1f1f'
+      color: '#0B0B0B',
+      fontWeight: '500',
     },
     li: {
       marginLeft: 6,
@@ -35,8 +38,8 @@ export default function RSSItem({ item }) {
 
   const baseStyle = {
     fontSize: 16,
-    color: '#1f1f1f',
-    lineHeight: 23,
+    color: '#0B0B0B',
+    lineHeight: 25,
     whiteSpace: 'normal',
   }
 
@@ -80,7 +83,7 @@ export default function RSSItem({ item }) {
             style={{
               width: (item.imageWidth > item.imageHeight ? maxImageSize : maxImageSize * item.imageWidth / item.imageHeight),
               height: (item.imageWidth > item.imageHeight ? maxImageSize * item.imageHeight / item.imageWidth : maxImageSize),
-              borderRadius: 4,
+              borderRadius: 6,
               borderWidth: 2,
               borderColor: '#f5f5f5',
               marginTop: 16
