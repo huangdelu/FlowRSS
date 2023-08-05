@@ -7,13 +7,14 @@ import {
   SafeAreaView,
   Pressable,
   Button,
-  AppState, Image
+  AppState, Image, Modal
 } from "react-native";
 import * as rssParser from "react-native-rss-parser";
 import { FlashList } from "@shopify/flash-list";
 import RSSItem from "./components/RSSItem";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFonts } from 'expo-font';
+import * as WebBrowser from "expo-web-browser";
 const cheerio = require('cheerio');
 
 /**
@@ -32,9 +33,10 @@ const rssLinks = [
   // "https://chentiansaber.top/v2ex/tab/creative", //V2EX - 创造
   // "https://chentiansaber.top/v2ex/tab/play", //V2EX - 好玩
   // "https://chentiansaber.top/v2ex/tab/tech", //V2EX - 技术
-  // "https://hnrss.org/bestcomments", // HackNews
+  // "https://chentiansaber.top/hackernews/best", // HackNews
   "https://chentiansaber.top/wechat/ce/5b6871ddaf33fe067f22dbd3", // 差评公众号
   // "https://chentiansaber.top/gamersky/news?limit=20", // 游民星空
+  // "https://chentiansaber.top/douban/list/subject_real_time_hotest", // 豆瓣
   // 即刻
   // Twitter，Instergram，youtube，微博
 ];
@@ -161,6 +163,7 @@ export default function App() {
   const [itemList, setItemList] = useState([]);
 
   const [log, setLog] = useState("");
+  const [showLog, setShowLog] = useState(false)
 
   const [fontsLoaded] = useFonts({
     'Billabong': require('./assets/fonts/Billabong.ttf'),
@@ -204,7 +207,12 @@ export default function App() {
     recoverListPosition();
   }, [itemList]);
 
+  function updateLog(info) {
+    setLog(`${info}\n${log}`)
+  }
+
   async function requestAll() {
+    setLog('')
     // // 滑动位置复位
     // await AsyncStorage.setItem("listOffSetY", `${0}`);
     // // // 每次请求新数据前，先把旧数据保存起来，用来判断已读
@@ -229,12 +237,12 @@ export default function App() {
     // if (readList.size > 0) {
     //   await saveReadList({ list: Array.from(readList) });
     // }
-    // setLog("已读数据已处理");
+    // updateLog("已读数据已处理");
 
     const tempList = [];
     for (let i = 0; i < rssLinks.length; i++) {
       console.log(`[link --> ${rssLinks[i]}]`);
-      setLog(`[link[${i + 1}/${rssLinks.length}] --> ${rssLinks[i]}]`);
+      updateLog(`[link[${i + 1}/${rssLinks.length}] --> ${rssLinks[i]}]`);
       let result = await requestRSSData(rssLinks[i]);
       console.log(result.items[0]);
       let list = await processRSSData(result);
@@ -246,7 +254,7 @@ export default function App() {
       });
       console.log("forEach-->", tempList.length);
     }
-    setLog(`加载结束`);
+    updateLog(`加载结束`);
 
     // 打乱数据
     tempList.sort(() => Math.random() - 0.5);
@@ -263,20 +271,61 @@ export default function App() {
 
   return (
     <View style={styles.container}>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showLog}
+        onRequestClose={() => {
+          setShowLog(false);
+        }}>
+        <View style={{ flex: 1, justifyContent: "flex-end" }} onPress={() => {
+          setShowLog(false)
+        }}>
+          <Pressable style={{ flex: 1 }} onPress={() => {
+            setShowLog(false)
+          }} />
+          <View style={{
+            width: '100%',
+            height: 300,
+            backgroundColor: 'white',
+            borderTopLeftRadius: 12,
+            borderTopRightRadius: 12,
+            borderWidth: 2,
+            borderColor: '#f5f5f5'
+          }}>
+            <Text style={{ flex: 1, padding: 16 }}>
+              {log}
+            </Text>
+          </View>
+        </View>
+      </Modal>
       <Pressable style={{
         height: 50,
         width: '100%',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         alignItems: 'center',
+        flexDirection: 'row',
         paddingLeft: 16,
         paddingRight: 16
       }} onPress={() => {
         requestAll()
+      }} onLongPress={() => {
+        setShowLog(true)
       }}>
         <Text style={{ fontFamily: 'Billabong', fontSize: 30 }}>{"Rssgrame"}</Text>
+        <View style={{ flexDirection: 'row' }}>
+          <Pressable style={{ width: 50, height: 50, justifyContent: 'center', alignItems: 'center' }} >
+            <Image source={require('./res/readlater.png')} style={{ width: 24, height: 24 }} />
+          </Pressable>
+          <Pressable style={{ width: 50, height: 50, justifyContent: 'center', alignItems: 'center', marginLeft: 6 }} onPress={async () => {
+            let result = await WebBrowser.openBrowserAsync('https://web.okjike.com/recommend');
+            console.log(result);
+          }}>
+            <Image source={require('./res/Jike.png')} style={{ width: 24, height: 24 }} />
+          </Pressable>
+        </View>
       </Pressable>
       <View style={{ height: 1.5, width: '100%', backgroundColor: '#f5f5f5' }} />
-      <Text style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>{log}</Text>
       <View style={styles.itemList}>
         <FlashList
           ref={(ref) => (this.listView = ref)}

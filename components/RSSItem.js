@@ -11,7 +11,7 @@ import moment from "moment";
 import RenderHtml from "react-native-render-html";
 import { useEffect, useState } from "react";
 
-export default function RSSItem({ item,onClick }) {
+export default function RSSItem({ item, onClick }) {
   const { width } = useWindowDimensions();
   const maxImageSize = 240
 
@@ -96,8 +96,8 @@ export default function RSSItem({ item,onClick }) {
         <Pressable onPress={() => {
           onClick()
         }}>
-          <View style={{ width: '100%', height: 50 }}>
-            <Text>{"换一批"}</Text>
+          <View style={{ width: '100%', height: 50, marginBottom: 24, justifyContent: 'center', alignItems: 'center' }}>
+            <Text style={{ fontSize: 16, color: '#1f1f1f', fontWeight: 'bold' }}>{"看完了，换一批"}</Text>
           </View>
         </Pressable>}
     </Pressable>
