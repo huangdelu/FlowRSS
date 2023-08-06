@@ -79,7 +79,7 @@ export default function RSSItem({ item, onClick }) {
               enableExperimentalGhostLinesPrevention={true}
             />
           </View>
-          {item.imageList.length > 3 ? <Image
+          {item.imageList.length > 0 ? <Image
             style={{
               width: (item.imageWidth > item.imageHeight ? maxImageSize : maxImageSize * item.imageWidth / item.imageHeight),
               height: (item.imageWidth > item.imageHeight ? maxImageSize * item.imageHeight / item.imageWidth : maxImageSize),
@@ -89,7 +89,7 @@ export default function RSSItem({ item, onClick }) {
               marginTop: 16
             }}
             source={{
-              uri: item.imageList[item.imageList.length - 3],
+              uri: item.imageList[0],
             }}
           /> : null}
         </View> :

@@ -1,12 +1,10 @@
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
   View,
-  SafeAreaView,
   Pressable,
-  Button,
   AppState, Image, Modal
 } from "react-native";
 import * as rssParser from "react-native-rss-parser";
@@ -23,33 +21,41 @@ const cheerio = require('cheerio');
 let curOffsetY = 0;
 
 /**
+ * 请求日志
+ */
+let requestLog = ''
+
+/**
  * RSS链接集合
  */
 const rssLinks = [
   "https://chentiansaber.top/sspai/index", //少数派
   // "http://www.ruanyifeng.com/blog/atom.xml", // 阮一峰
-  // "https://chentiansaber.top/bilibili/weekly?limit=20", // BiliBili - 每周热门
+  "https://chentiansaber.top/bilibili/weekly?limit=20", // BiliBili - 每周热门
   // "https://chentiansaber.top/v2ex/topics/hot", //V2EX - 最热
   // "https://chentiansaber.top/v2ex/tab/creative", //V2EX - 创造
   // "https://chentiansaber.top/v2ex/tab/play", //V2EX - 好玩
   // "https://chentiansaber.top/v2ex/tab/tech", //V2EX - 技术
-  // "https://chentiansaber.top/hackernews/best", // HackNews
+  "https://hnrss.org/newest?points=100", // HackerNews
+  "https://hnrss.org/bestcomments", // HackerNews
   "https://chentiansaber.top/wechat/ce/5b6871ddaf33fe067f22dbd3", // 差评公众号
   // "https://chentiansaber.top/gamersky/news?limit=20", // 游民星空
-  // "https://chentiansaber.top/douban/list/subject_real_time_hotest", // 豆瓣
-  // 即刻
+  // "https://rsshub.app/douban/list/subject_real_time_hotest", // 豆瓣
   // Twitter，Instergram，youtube，微博
 ];
 
 async function requestRSSData(rssLink) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     fetch(rssLink)
       .then((response) => response.text())
       .then((responseData) => rssParser.parse(responseData))
       .then((rss) => {
         // console.log(`[link:${rssLink}] , [${rss}]`);
         resolve(rss);
-      });
+      })
+      .catch((e) => {
+        reject(e)
+      })
   });
 }
 
@@ -82,7 +88,7 @@ async function processRSSData(rss) {
     // const pText = $('p').html();
     // 提取前三个<p>标签的内容
     let pContents = ``;
-    $('p').slice(3, 7).each((index, element) => {
+    $('p').slice(0, 4).each((index, element) => {
       pContents = pContents + ($(element).html()) + (index == 3 ? '' : `<br>`);
     });
 
@@ -91,13 +97,18 @@ async function processRSSData(rss) {
     let description = pContents;
 
     // 请求头像
-    let avatarData = await fetch(`https://source.unsplash.com/random/200x200?city`)
+    let avatarData = ''
+    try {
+      avatarData = await fetch(`https://source.unsplash.com/random/200x200?city`)
+    } catch (e) {
+      updateLog("avatarData fail ignore")
+    }
 
     // 请求首张图的宽高
     let imageSize = { width: 0, height: 0 }
-    if (imageList.length > 3) {
+    if (imageList.length > 0) {
       imageSize = await new Promise((resolve, reject) => {
-        Image.getSize(imageList[imageList.length - 3], (width, height) => {
+        Image.getSize(imageList[0], (width, height) => {
           resolve({ width, height });
         }, reject);
       });
@@ -208,51 +219,71 @@ export default function App() {
   }, [itemList]);
 
   function updateLog(info) {
-    setLog(`${info}\n${log}`)
+    requestLog = `${info}\n${requestLog}`
+    setLog(requestLog)
   }
 
   async function requestAll() {
-    setLog('')
-    // // 滑动位置复位
-    // await AsyncStorage.setItem("listOffSetY", `${0}`);
-    // // // 每次请求新数据前，先把旧数据保存起来，用来判断已读
+    requestLog = ''
+    // 滑动位置复位
+    try {
+      await AsyncStorage.setItem("listOffSetY", `${0}`);
+    } catch (e) {
+      updateLog('AsyncStorage listOffSetY error')
+    }
+    // 每次请求新数据前，先把旧数据保存起来，用来判断已读
     const readList = new Set();
-    // const tempItemList = [];
-    // tempItemList.push(...itemList);
-    // tempItemList.forEach((value) => {
-    //   readList.add(value.title);
-    // });
-    // console.log("read1 ->", readList.size);
-    // let jsonValue = await AsyncStorage.getItem("hasReadList");
-    // // console.log("hasReadList ->", jsonValue);
-    // let lastData = [];
-    // if (jsonValue != null) {
-    //   lastData = JSON.parse(jsonValue);
-    //   console.log("read2 ->", lastData);
-    //   lastData.list.forEach((value) => {
-    //     readList.add(value);
-    //   });
-    // }
-    // // console.log("readList.length ->", readList);
-    // if (readList.size > 0) {
-    //   await saveReadList({ list: Array.from(readList) });
-    // }
-    // updateLog("已读数据已处理");
+    const tempItemList = [];
+    tempItemList.push(...itemList);
+    tempItemList.forEach((value) => {
+      readList.add(value.title);
+    });
+    console.log("read1 ->", readList.size);
+
+    try {
+      let jsonValue = await AsyncStorage.getItem("hasReadList");
+      // console.log("hasReadList ->", jsonValue);
+      let lastData = [];
+      if (jsonValue != null) {
+        lastData = JSON.parse(jsonValue);
+        console.log("read2 ->", lastData);
+        lastData.list.forEach((value) => {
+          readList.add(value);
+        });
+      }
+    } catch (e) {
+      updateLog("AsyncStorage.getItem(hasReadList) error")
+    }
+
+    // console.log("readList.length ->", readList);
+    try {
+      if (readList.size > 0) {
+        await saveReadList({ list: Array.from(readList) });
+      }
+    } catch (e) {
+      updateLog("saveReadList error");
+    }
+
+    updateLog("已读数据已处理");
 
     const tempList = [];
     for (let i = 0; i < rssLinks.length; i++) {
       console.log(`[link --> ${rssLinks[i]}]`);
       updateLog(`[link[${i + 1}/${rssLinks.length}] --> ${rssLinks[i]}]`);
-      let result = await requestRSSData(rssLinks[i]);
-      console.log(result.items[0]);
-      let list = await processRSSData(result);
-      console.log("processRSSData-->", list.length);
-      list.forEach((value) => {
-        if (readList.has(value.title) == false) {
-          tempList.push(value);
-        }
-      });
-      console.log("forEach-->", tempList.length);
+      try {
+        let result = await requestRSSData(rssLinks[i]);
+        console.log(result.items[0]);
+        let list = await processRSSData(result);
+        console.log("processRSSData-->", list.length);
+        list.forEach((value) => {
+          if (readList.has(value.title) == false) {
+            tempList.push(value);
+          }
+        });
+        console.log("forEach-->", tempList.length);
+      } catch (e) {
+        updateLog(`requestRSSData/processRSSData error`);
+      }
     }
     updateLog(`加载结束`);
 
@@ -312,7 +343,7 @@ export default function App() {
       }} onLongPress={() => {
         setShowLog(true)
       }}>
-        <Text style={{ fontFamily: 'Billabong', fontSize: 30 }}>{"Rssgrame"}</Text>
+        <Text style={{ fontFamily: 'Billabong', fontSize: 30 }}>{"Rssgram"}</Text>
         <View style={{ flexDirection: 'row' }}>
           <Pressable style={{ width: 50, height: 50, justifyContent: 'center', alignItems: 'center' }} >
             <Image source={require('./res/readlater.png')} style={{ width: 24, height: 24 }} />
