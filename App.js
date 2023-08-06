@@ -30,17 +30,17 @@ let requestLog = ''
  */
 const rssLinks = [
   "https://chentiansaber.top/sspai/index", //少数派
-  // "http://www.ruanyifeng.com/blog/atom.xml", // 阮一峰
+  "http://www.ruanyifeng.com/blog/atom.xml", // 阮一峰
   "https://chentiansaber.top/bilibili/weekly?limit=20", // BiliBili - 每周热门
-  // "https://chentiansaber.top/v2ex/topics/hot", //V2EX - 最热
-  // "https://chentiansaber.top/v2ex/tab/creative", //V2EX - 创造
-  // "https://chentiansaber.top/v2ex/tab/play", //V2EX - 好玩
-  // "https://chentiansaber.top/v2ex/tab/tech", //V2EX - 技术
+  "https://chentiansaber.top/v2ex/topics/hot", //V2EX - 最热
+  "https://chentiansaber.top/v2ex/tab/creative", //V2EX - 创造
+  "https://chentiansaber.top/v2ex/tab/play", //V2EX - 好玩
+  "https://chentiansaber.top/v2ex/tab/tech", //V2EX - 技术
   "https://hnrss.org/newest?points=100", // HackerNews
   "https://hnrss.org/bestcomments", // HackerNews
   "https://chentiansaber.top/wechat/ce/5b6871ddaf33fe067f22dbd3", // 差评公众号
-  // "https://chentiansaber.top/gamersky/news?limit=20", // 游民星空
-  // "https://rsshub.app/douban/list/subject_real_time_hotest", // 豆瓣
+  "https://chentiansaber.top/gamersky/news?limit=20", // 游民星空
+  "https://rsshub.app/douban/list/subject_real_time_hotest", // 豆瓣
   // Twitter，Instergram，youtube，微博
 ];
 
